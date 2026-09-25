@@ -102,6 +102,8 @@
         <item name="boxStrokeWidthFocused">1dp</item>
         <item name="endIconMode">custom</item>
         <item name="endIconDrawable">@drawable/ic_copy</item>
+        <item name="endIconTint">?colorPrimary</item>
+        <item name="startIconTint">?colorPrimary</item>
         <item name="hintTextColor">?colorOnSurfaceVariant</item>
         <item name="prefixTextColor">?colorOnSurfaceVariant</item>
         <item name="shapeAppearanceOverlay">?attr/shapeAppearanceCornerMedium</item>

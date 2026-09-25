@@ -15,16 +15,22 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -50,11 +56,22 @@ fun SettingsScreen(
 ) {
     var isSearchActive by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    val searchFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
-    BackHandler(enabled = isSearchActive) {
+    fun exitSearch() {
         isSearchActive = false
         searchQuery = ""
         onSearchQueryChanged("")
+        keyboardController?.hide()
+    }
+
+    BackHandler(enabled = isSearchActive) { exitSearch() }
+
+    LaunchedEffect(isSearchActive) {
+        if (isSearchActive) {
+            searchFocusRequester.requestFocus()
+        }
     }
 
     val isOneUi = af.shizuku.manager.ShizukuSettings.isOneUiThemeEnabled()
@@ -78,69 +95,33 @@ fun SettingsScreen(
         }
     }
 
-
     Scaffold(
         topBar = {
-            if (!isSearchActive) {
-              if (isExpandedHeaders) {
-                LargeTopAppBar(
-                    title = {
-                        val fraction = scrollBehavior.state.collapsedFraction
-                        val currentFontSize = lerp(
-                            start = 28.sp,
-                            stop = 20.sp,
-                            fraction = fraction
-                        )
-                        val currentFontWeight = if (fraction > 0.65f) FontWeight.Bold else FontWeight.ExtraBold
-                        val currentLetterSpacing = lerp((-0.5).sp, (-0.2).sp, fraction)
-                        Text(
-                            text = title,
-                            // Samsung OneUI 6/7 uses W800 (ExtraBold) for the large expanded header
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = currentFontWeight,
-                                fontSize = currentFontSize,
-                                letterSpacing = currentLetterSpacing
-                            ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { onNavigateUp() }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_back_24),
-                                contentDescription = stringResource(R.string.cd_navigate_back)
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { isSearchActive = true }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_search_24),
-                                contentDescription = stringResource(R.string.cd_settings_search)
-                            )
-                        }
-                    },
-                    // Samsung OneUI: transparent container until scrolled, then subtle surface tint
-                    colors = TopAppBarDefaults.largeTopAppBarColors(
-                        containerColor = Color.Transparent,
-                        scrolledContainerColor = if (af.shizuku.manager.ShizukuSettings.isBlurUiEnabled())
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
-                        else
-                            MaterialTheme.colorScheme.surfaceContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-                        actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    scrollBehavior = scrollBehavior
-                )
-              } else {
+            if (isSearchActive) {
+                // Search mode: back button + inline text field + optional clear button
                 TopAppBar(
                     title = {
-                        Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { q -> searchQuery = q; onSearchQueryChanged(q) },
+                            placeholder = { Text(stringResource(R.string.settings_search_hint)) },
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            ),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .focusRequester(searchFocusRequester)
+                        )
                     },
                     navigationIcon = {
-                        IconButton(onClick = { onNavigateUp() }) {
+                        IconButton(onClick = { exitSearch() }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_back_24),
                                 contentDescription = stringResource(R.string.cd_navigate_back)
@@ -148,27 +129,104 @@ fun SettingsScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { isSearchActive = true }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_search_24),
-                                contentDescription = stringResource(R.string.cd_settings_search)
-                            )
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = ""; onSearchQueryChanged("") }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_close_24),
+                                    contentDescription = stringResource(R.string.cd_settings_search_clear)
+                                )
+                            }
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent,
-                        scrolledContainerColor = if (af.shizuku.manager.ShizukuSettings.isBlurUiEnabled())
-                            MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
-                        else
-                            MaterialTheme.colorScheme.surfaceContainer
+                        containerColor = if (isBlackTheme) Color.Black
+                        else MaterialTheme.colorScheme.surface
                     )
                 )
-              }
+            } else {
+                if (isExpandedHeaders) {
+                    LargeTopAppBar(
+                        title = {
+                            val fraction = scrollBehavior.state.collapsedFraction
+                            val currentFontSize = lerp(
+                                start = 28.sp,
+                                stop = 20.sp,
+                                fraction = fraction
+                            )
+                            val currentFontWeight = if (fraction > 0.65f) FontWeight.Bold else FontWeight.ExtraBold
+                            val currentLetterSpacing = lerp((-0.5).sp, (-0.2).sp, fraction)
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.headlineLarge.copy(
+                                    fontWeight = currentFontWeight,
+                                    fontSize = currentFontSize,
+                                    letterSpacing = currentLetterSpacing
+                                ),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { onNavigateUp() }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_back_24),
+                                    contentDescription = stringResource(R.string.cd_navigate_back)
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { isSearchActive = true }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_search_24),
+                                    contentDescription = stringResource(R.string.cd_settings_search)
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.largeTopAppBarColors(
+                            containerColor = Color.Transparent,
+                            scrolledContainerColor = if (af.shizuku.manager.ShizukuSettings.isBlurUiEnabled())
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
+                            else
+                                MaterialTheme.colorScheme.surfaceContainer,
+                            titleContentColor = MaterialTheme.colorScheme.onSurface,
+                            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                            actionIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        scrollBehavior = scrollBehavior
+                    )
+                } else {
+                    TopAppBar(
+                        title = {
+                            Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = { onNavigateUp() }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_back_24),
+                                    contentDescription = stringResource(R.string.cd_navigate_back)
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { isSearchActive = true }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_search_24),
+                                    contentDescription = stringResource(R.string.cd_settings_search)
+                                )
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent,
+                            scrolledContainerColor = if (af.shizuku.manager.ShizukuSettings.isBlurUiEnabled())
+                                MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
+                            else
+                                MaterialTheme.colorScheme.surfaceContainer
+                        )
+                    )
+                }
             }
         }
     ) { innerPadding ->
-        // Samsung OneUI one-handed mode: shift content down into the thumb-reachable zone (38% screen height).
-        // Subtract innerPadding.top so we don't double-pad on top of the TopAppBar.
         val screenHeightDp = LocalConfiguration.current.screenHeightDp
         val targetThumbTop = (screenHeightDp * 0.38f).dp
         val extraOneHanded = (targetThumbTop - innerPadding.calculateTopPadding()).coerceAtLeast(0.dp)
@@ -207,7 +265,8 @@ fun SettingsScreen(
                     )
                 }
             }
-            // Fragment Container for Preferences — fill full viewport with top and bottom insets.
+
+            // Fragment container — hidden while search is active
             AndroidView(
                 factory = { context ->
                     FrameLayout(context).apply {
@@ -227,73 +286,49 @@ fun SettingsScreen(
                     )
             )
 
-            // M3 SearchBar — full-screen, manages its own status-bar insets when the
-            // top bar is hidden. The topBar slot is empty when isSearchActive = true so
-            // this SearchBar starts from the very top of the window.
-            val searchFadeMs = af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(300L).toInt()
+            // Inline search results — appears below the search TopAppBar
+            val searchFadeMs = af.shizuku.manager.ShizukuSettings.scaledAnimationDuration(200L).toInt()
             AnimatedVisibility(
                 visible = isSearchActive,
                 enter = fadeIn(tween(searchFadeMs)),
                 exit = fadeOut(tween(searchFadeMs)),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = innerPadding.calculateTopPadding())
             ) {
-                SearchBar(
-                    query = searchQuery,
-                    onQueryChange = { q -> searchQuery = q; onSearchQueryChanged(q) },
-                    onSearch = {},
-                    active = true,
-                    onActiveChange = {
-                        if (!it) { isSearchActive = false; searchQuery = ""; onSearchQueryChanged("") }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = SearchBarDefaults.colors(
-                        containerColor = if (isBlackTheme) Color.Black else MaterialTheme.colorScheme.surface,
-                        inputFieldColors = SearchBarDefaults.inputFieldColors()
-                    ),
-                    leadingIcon = {
-                        IconButton(onClick = {
-                            isSearchActive = false; searchQuery = ""; onSearchQueryChanged("")
-                        }) {
-                            Icon(painterResource(R.drawable.ic_back_24), stringResource(R.string.cd_navigate_back))
-                        }
-                    },
-                    trailingIcon = if (searchQuery.isEmpty()) null else ({
-                        IconButton(onClick = { searchQuery = ""; onSearchQueryChanged("") }) {
-                            Icon(painterResource(R.drawable.ic_close_24), stringResource(R.string.cd_settings_search_clear))
-                        }
-                    }),
-                    placeholder = { Text(stringResource(R.string.settings_search_hint)) },
-                    windowInsets = SearchBarDefaults.windowInsets
+                val bgColor = if (isBlackTheme) Color.Black else MaterialTheme.colorScheme.surface
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(bgColor)
                 ) {
-                    if (searchQuery.isNotBlank()) {
-                        if (searchResults.isEmpty()) {
-                            Text(
-                                text = stringResource(R.string.settings_search_empty_state),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(32.dp),
-                                textAlign = TextAlign.Center,
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        } else {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = PaddingValues(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(searchResults) { item ->
-                                    SearchResultItem(
-                                        item = item,
-                                        isBlackTheme = isBlackTheme,
-                                        onClick = {
-                                            isSearchActive = false
-                                            searchQuery = ""
-                                            onSearchQueryChanged("")
-                                            onNavigateToSetting(item)
-                                        }
-                                    )
-                                }
+                    if (searchQuery.isBlank()) {
+                        // Empty query: just show the background so the fragment is covered
+                    } else if (searchResults.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.settings_search_empty_state),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(searchResults) { item ->
+                                SearchResultItem(
+                                    item = item,
+                                    isBlackTheme = isBlackTheme,
+                                    onClick = {
+                                        exitSearch()
+                                        onNavigateToSetting(item)
+                                    }
+                                )
                             }
                         }
                     }

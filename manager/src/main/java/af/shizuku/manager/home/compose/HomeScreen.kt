@@ -52,7 +52,9 @@ fun HomeScreen(
     // Status bar height — must be included in the Surface height so content sits below it,
     // not behind it. The inner Box gets windowInsetsPadding(statusBars) to push all content
     // (icons, title) below the status bar without shrinking the available content area.
-    val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    // Use safeDrawing (= systemBars ∪ displayCutout) so OEMs like Xiaomi HyperOS that report
+    // statusBars as 0 still give us the correct top offset and the icons remain clickable.
+    val statusBarPadding = WindowInsets.safeDrawing.asPaddingValues().calculateTopPadding()
 
     // When one-handed or One UI: expanded viewing area occupies ~36% of screen height,
     // letting the thumb reach the interaction zone below. Otherwise stay at a flat 64dp bar.
