@@ -12,51 +12,51 @@ Shizuku lets normal apps use system-level APIs directly via a privileged process
 [![Downloads](https://img.shields.io/github/downloads/thejaustin/ShizukuPlus/total?style=for-the-badge&color=bf7830&labelColor=805020)](https://github.com/thejaustin/ShizukuPlus/releases)
 [![Latest Release](https://img.shields.io/github/v/release/thejaustin/ShizukuPlus?style=for-the-badge&color=3060bf&labelColor=204080&label=Latest)](https://github.com/thejaustin/ShizukuPlus/releases/latest)
 
-**🌐 Languages:** **English** · [简体中文](README.zh-CN.md)
+**🌐 Languages:** **English** · [Simplified Chinese](README.zh-CN.md)
 
 </div>
 
 > **Contributors welcome!** If you've found a bug or want to improve the codebase, please open an issue or pull request — the project is actively looking for contributors and collaborators.
 
-## 🇨🇳 简体中文（zh-rCN）本地化
+## 🇨🇳 Simplified Chinese (zh-rCN) Localization
 
-简体中文由本仓库（下游 fork）维护。**如需贡献中文，请在本仓库提交 issue 或 pull request —— 我们会每日定时检查反馈与提交。**
+Simplified Chinese is maintained in this fork. **To contribute Chinese translations, or to report a wording issue, open an issue or a pull request in this repository — feedback and submissions are reviewed on a daily schedule.**
 
-中文说明文档：[README.zh-CN.md](README.zh-CN.md)
+Chinese documentation: [README.zh-CN.md](README.zh-CN.md)
 
-### 中文覆盖度
+### Coverage
 
-| 指标 | 数值 |
-|------|------|
-| 已收录字符串 | **2095 / 2095** |
-| 覆盖率 | **100.00%** |
-| 缺失译文 | 0 |
-| 无法翻译（阻塞） | 0 |
-| 警告 | 0 |
-| 已本地化文件 | 9 个 `values-zh-rCN/*.xml` |
+| Metric | Value |
+| --- | --- |
+| Strings covered | **2095 / 2095** |
+| Coverage | **100.00%** |
+| Missing translations | 0 |
+| Blocked (cannot translate) | 0 |
+| Warnings | 0 |
+| Localized files | 9 × `values-zh-rCN/*.xml` |
 
-已覆盖的模块：`manager`、`core/ui`、`compat`（兼容桩）、`common`、`app-process`、`database`、`server`、`shell`、`starter`、`api`、`core/common`、`core/data`
+Modules covered: `manager`, `core/ui`, `compat` (compat stub), `common`, `app-process`, `database`, `server`, `shell`, `starter`, `api`, `core/common`, `core/data`
 
-### 尚未覆盖的内容
+### Not yet covered
 
-| 项目 | 状态 | 说明 |
-|------|------|------|
-| 硬编码字符串 | 建议项 1 处 | 界面中仍有 1 处文本直接写在代码里，无法通过资源文件汉化；需上游改动代码，故不在本地化范围内 |
-| `translatable="false"` 条目 | 有意不翻译 | 属调试/内部标识用途，按上游约定不参与本地化 |
-| 引用型数组（`@string/`） | 有意不翻译 | 仅引用其它字符串，随其指向的条目一并生效 |
-| 枚举型数组值（如 `none` / `open_app` / `DEFAULT`） | 有意不翻译 | 属程序判定用的取值，翻译会破坏功能 |
-| 品牌与技术专名 | 有意保留原文 | 如 **Shizuku+**、**AMOLED+**、**Material You**、**ADB**、**One UI**、**Hex Installer**、**Magisk**、**Dhizuku** 等（品牌后缀的 `+` 不得丢失） |
-| 其它语言目录 | 不作改动 | `values-<其它语言>/`、`values-night/`、`values-v31/` 等一律保留，只做中文新增 |
-| 英文 README / 文档 | 不作翻译 | 仅新增中文入口与本中文说明文档 |
+| Item | Status | Notes |
+| --- | --- | --- |
+| Hardcoded strings | 1 suggestion | One UI string is hardcoded in source and cannot be localized through resources; it needs an upstream code change, so it is out of scope for localization |
+| `translatable="false"` entries | Intentionally untranslated | Debug/internal identifiers — excluded by upstream convention |
+| Reference arrays (`@string/`) | Intentionally untranslated | They only alias other strings, and inherit their translations |
+| Enum-valued arrays (e.g. `none` / `open_app` / `DEFAULT`) | Intentionally untranslated | Machine-read values — translating them would break behavior |
+| Brand and technical names | Intentionally kept as-is | E.g. **Shizuku+**, **AMOLED+**, **Material You**, **ADB**, **One UI**, **Hex Installer**, **Magisk**, **Dhizuku** (a trailing `+` must never be dropped) |
+| Other locale folders | Untouched | `values-<other locale>/`, `values-night/`, `values-v31/`, etc. are preserved — only Chinese additions are made |
+| English README / docs | Not translated | Only the Chinese entry point and the Chinese README are added |
 
-### 术语与规范
+### Terminology and rules
 
-中文译文遵循机器可读术语表 `tools/glossary_zh_rCN.json` 与汉化规范 `tools/LOCALIZATION_SPEC_zh-rCN.md`，关键约束：
+The Chinese translations follow the machine-readable glossary `tools/glossary_zh_rCN.json` and the specification `tools/LOCALIZATION_SPEC_zh-rCN.md`. Key constraints:
 
-- **逐条翻译，禁止批量操作**：每一条译文都必须独立留痕（含选择理由、术语比对结果与自校验结果），无法留痕的改动会被质量门禁直接拒绝提交。
-- **只汉化界面资源**：仅写入 `*/src/main/res/values-zh-rCN/*.xml`，不触碰 Kotlin/Java/Gradle/Manifest/CI 等文件。
-- **保留占位符与转义**：`%1$s`、`%d`、字面 `\n`、CDATA、HTML 标签等不做改译。
-- **每日定时维护**：每日同步上游英文变更、检查术语漂移，并检查本仓库的反馈与提交。
+- **Translated entry by entry — no batch operations.** Every entry is independently logged (rationale, glossary comparison, self-checks); a change without such a record is rejected by the quality gate before commit.
+- **UI resources only.** Only `*/src/main/res/values-zh-rCN/*.xml` is written — Kotlin/Java/Gradle/Manifest/CI files are never touched.
+- **Placeholders and escapes preserved.** `%1$s`, `%d`, literal escapes, CDATA and HTML tags are carried over verbatim.
+- **Daily upstream sync.** English changes are synced, terminology drift is checked, and feedback/submissions in this repository are reviewed every day.
 
 ## ⬇️ Download
 
