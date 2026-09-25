@@ -66,6 +66,14 @@
         <item>oppo_find_x8_ultra</item>
         <item>tcl_50_pro</item>
     </string-array>
+    <string-array name="corner_rounding_entries">
+        <item>增强 — 32dp（默认）</item>
+        <item>柔和 — 20dp</item>
+        <item>标准 M3 — 28dp</item>
+        <item>大 — 36dp</item>
+        <item>最大 — 44dp</item>
+        <item>系统默认</item>
+    </string-array>
 
 
     <string-array name="update_channel_entries">
