@@ -12,6 +12,8 @@ Shizuku lets normal apps use system-level APIs directly via a privileged process
 [![Downloads](https://img.shields.io/github/downloads/thejaustin/ShizukuPlus/total?style=for-the-badge&color=bf7830&labelColor=805020)](https://github.com/thejaustin/ShizukuPlus/releases)
 [![Latest Release](https://img.shields.io/github/v/release/thejaustin/ShizukuPlus?style=for-the-badge&color=3060bf&labelColor=204080&label=Latest)](https://github.com/thejaustin/ShizukuPlus/releases/latest)
 
+**🌐 Languages:** **English** · [简体中文](README.zh-CN.md)
+
 </div>
 
 > **Contributors welcome!** If you've found a bug or want to improve the codebase, please open an issue or pull request — the project is actively looking for contributors and collaborators.
