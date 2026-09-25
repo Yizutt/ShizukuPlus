@@ -1,9 +1,5 @@
 <div align="center">
 
-I've finished moving my development environment and am now on a new device! Goodbye S22 Ultra, Hello S26 Ultra!
-
-Please keep submitting issues you're experiencing, and feel free to open pull requests if you think you can help improve the codebase! I'm looking for contributors and collaborators to keep the vision alive and stabilize the project, so feel free to reach out!
-
 # Shizuku+
 
 The advanced privileged-process manager for Android.
@@ -16,7 +12,51 @@ Shizuku lets normal apps use system-level APIs directly via a privileged process
 [![Downloads](https://img.shields.io/github/downloads/thejaustin/ShizukuPlus/total?style=for-the-badge&color=bf7830&labelColor=805020)](https://github.com/thejaustin/ShizukuPlus/releases)
 [![Latest Release](https://img.shields.io/github/v/release/thejaustin/ShizukuPlus?style=for-the-badge&color=3060bf&labelColor=204080&label=Latest)](https://github.com/thejaustin/ShizukuPlus/releases/latest)
 
+**🌐 Languages:** **English** · [简体中文](README.zh-CN.md)
+
 </div>
+
+> **Contributors welcome!** If you've found a bug or want to improve the codebase, please open an issue or pull request — the project is actively looking for contributors and collaborators.
+
+## 🇨🇳 简体中文（zh-rCN）本地化
+
+简体中文由本仓库（下游 fork）维护。**如需贡献中文，请在本仓库提交 issue 或 pull request —— 我们会每日定时检查反馈与提交。**
+
+中文说明文档：[README.zh-CN.md](README.zh-CN.md)
+
+### 中文覆盖度
+
+| 指标 | 数值 |
+|------|------|
+| 已收录字符串 | **2095 / 2095** |
+| 覆盖率 | **100.00%** |
+| 缺失译文 | 0 |
+| 无法翻译（阻塞） | 0 |
+| 警告 | 0 |
+| 已本地化文件 | 9 个 `values-zh-rCN/*.xml` |
+
+已覆盖的模块：`manager`、`core/ui`、`compat`（兼容桩）、`common`、`app-process`、`database`、`server`、`shell`、`starter`、`api`、`core/common`、`core/data`
+
+### 尚未覆盖的内容
+
+| 项目 | 状态 | 说明 |
+|------|------|------|
+| 硬编码字符串 | 建议项 1 处 | 界面中仍有 1 处文本直接写在代码里，无法通过资源文件汉化；需上游改动代码，故不在本地化范围内 |
+| `translatable="false"` 条目 | 有意不翻译 | 属调试/内部标识用途，按上游约定不参与本地化 |
+| 引用型数组（`@string/`） | 有意不翻译 | 仅引用其它字符串，随其指向的条目一并生效 |
+| 枚举型数组值（如 `none` / `open_app` / `DEFAULT`） | 有意不翻译 | 属程序判定用的取值，翻译会破坏功能 |
+| 品牌与技术专名 | 有意保留原文 | 如 **Shizuku+**、**AMOLED+**、**Material You**、**ADB**、**One UI**、**Hex Installer**、**Magisk**、**Dhizuku** 等（品牌后缀的 `+` 不得丢失） |
+| 其它语言目录 | 不作改动 | `values-<其它语言>/`、`values-night/`、`values-v31/` 等一律保留，只做中文新增 |
+| 英文 README / 文档 | 不作翻译 | 仅新增中文入口与本中文说明文档 |
+
+### 术语与规范
+
+中文译文遵循机器可读术语表 `tools/glossary_zh_rCN.json` 与汉化规范 `tools/LOCALIZATION_SPEC_zh-rCN.md`，关键约束：
+
+- **逐条翻译，禁止批量操作**：每一条译文都必须独立留痕（含选择理由、术语比对结果与自校验结果），无法留痕的改动会被质量门禁直接拒绝提交。
+- **只汉化界面资源**：仅写入 `*/src/main/res/values-zh-rCN/*.xml`，不触碰 Kotlin/Java/Gradle/Manifest/CI 等文件。
+- **保留占位符与转义**：`%1$s`、`%d`、字面 `\n`、CDATA、HTML 标签等不做改译。
+- **每日定时维护**：每日同步上游英文变更、检查术语漂移，并检查本仓库的反馈与提交。
 
 ## ⬇️ Download
 
@@ -156,6 +196,34 @@ Full license texts and per-library details: [OPEN_SOURCE_LICENSES.md](OPEN_SOURC
 ## 📃 License
 
 [Apache 2.0](LICENSE)
+
+### Contributors
+
+Thank you to everyone who has contributed code, translations, and testing to Shizuku+:
+
+**Code Contributors**
+
+| Contributor | Contribution |
+|-------------|--------------|
+| [thejaustin](https://github.com/thejaustin) | Project founder & primary maintainer — all core Plus features, UI/UX, and infrastructure |
+| [thedjchi](https://github.com/thedjchi) | Intermediate fork base; Android 17 (SDK 37) compatibility groundwork |
+| [Kevin Doremy](https://github.com/doremylover) | Dead code removal, unused import cleanup, layout & class refactoring |
+| [Ryfter](https://github.com/Ryfter) | mDNS timeout improvements, FGS subtype refactoring, notification UX |
+| [vvb2060](https://github.com/vvb2060) | AGP build system updates, LTO optimization, license clarifications |
+| [Haruue Icymoon](https://github.com/haruue) | Documentation & README improvements |
+
+**Translation Contributors**
+
+| Language | Contributor |
+|----------|-------------|
+| Brazilian Portuguese | [odorizzioficial](https://github.com/odorizzioficial) |
+| French | [Ryfter](https://github.com/Ryfter), [T. Clement](https://github.com/thibaultclement) |
+| Vietnamese | [ThePrimalPea](https://github.com/ThePrimalPea) |
+| Filipino | [IverCoder](https://github.com/IverCoder) |
+| Italian | [Dany-coder778](https://github.com/Dany-coder778) |
+| Japanese | [MES-mitutti](https://github.com/MES-mitutti) |
+
+*Plus many more via community translation through Weblate — thank you to all translators!*
 
 ### Acknowledgments
 - Special thanks to **AkayamiShurui42** for the proactive security research and stability patches (Reference: #239).
